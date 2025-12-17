@@ -1,18 +1,18 @@
-import { createServerClient } from "@/lib/supabase/server";
-import { Product } from "@/lib/types/product";
+import { db, products } from "@/lib/db";
+import { desc } from "drizzle-orm";
 import { ProductGridClient } from "./product-grid-client";
 import { Package, RefreshCw } from "lucide-react";
 import Link from "next/link";
 
 export async function ProductGrid() {
-  const supabase = createServerClient();
+  try {
+    const productList = await db
+      .select()
+      .from(products)
+      .orderBy(desc(products.createdAt));
 
-  const { data: products, error } = await supabase
-    .from("products")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  if (error) {
+    return <ProductGridClient products={productList} />;
+  } catch (error) {
     console.error("Error fetching products:", error);
     return (
       <div className="text-center py-16">
@@ -37,7 +37,6 @@ export async function ProductGrid() {
       </div>
     );
   }
-
-  return <ProductGridClient products={products || []} />;
 }
+
 

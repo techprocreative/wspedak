@@ -1,6 +1,6 @@
 "use client";
 
-import { Product } from "@/lib/types/product";
+import { Product } from "@/lib/db/schema";
 import { ProductCard } from "./product-card";
 import { Package } from "lucide-react";
 import { useEffect, useState } from "react";

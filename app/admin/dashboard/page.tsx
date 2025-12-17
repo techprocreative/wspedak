@@ -3,46 +3,48 @@ import { Plus, Package, TrendingUp, Users, ShoppingCart, ClipboardList } from "l
 import { Button } from "@/components/ui/button";
 import { ProductTable } from "@/components/admin/product-table";
 import { Card, CardContent } from "@/components/ui/card";
-import { createServerClient } from "@/lib/supabase/server";
+import { db, products, orders } from "@/lib/db";
+import { count, eq, sql } from "drizzle-orm";
 
 async function getStats() {
-  const supabase = createServerClient();
+  try {
+    // Get total products
+    const [productResult] = await db.select({ count: count() }).from(products);
 
-  // Get total products
-  const { count: productCount } = await supabase
-    .from("products")
-    .select("*", { count: "exact", head: true });
+    // Get total orders
+    const [orderResult] = await db.select({ count: count() }).from(orders);
 
-  // Get total orders
-  const { count: orderCount } = await supabase
-    .from("orders")
-    .select("*", { count: "exact", head: true });
+    // Get unique customers (by unique customer names)
+    const customerData = await db.select({ customerName: orders.customerName }).from(orders);
+    const uniqueCustomers = new Set(customerData.map((c) => c.customerName));
 
-  // Get unique customers (by unique customer names)
-  const { data: customers } = await supabase
-    .from("orders")
-    .select("customer_name");
-  const uniqueCustomers = new Set(customers?.map((c) => c.customer_name) || []);
+    // Get total revenue
+    const revenueData = await db.select({ totalAmount: orders.totalAmount }).from(orders);
+    const totalRevenue = revenueData.reduce((sum, order) => sum + Number(order.totalAmount || 0), 0);
 
-  // Get total revenue
-  const { data: orders } = await supabase
-    .from("orders")
-    .select("total_amount");
-  const totalRevenue = orders?.reduce((sum, order) => sum + (order.total_amount || 0), 0) || 0;
+    // Get pending orders count
+    const [pendingResult] = await db
+      .select({ count: count() })
+      .from(orders)
+      .where(eq(orders.status, "pending"));
 
-  // Get pending orders count
-  const { count: pendingOrders } = await supabase
-    .from("orders")
-    .select("*", { count: "exact", head: true })
-    .eq("status", "pending");
-
-  return {
-    products: productCount || 0,
-    orders: orderCount || 0,
-    customers: uniqueCustomers.size,
-    revenue: totalRevenue,
-    pendingOrders: pendingOrders || 0,
-  };
+    return {
+      products: productResult?.count || 0,
+      orders: orderResult?.count || 0,
+      customers: uniqueCustomers.size,
+      revenue: totalRevenue,
+      pendingOrders: pendingResult?.count || 0,
+    };
+  } catch (error) {
+    console.error("Error fetching stats:", error);
+    return {
+      products: 0,
+      orders: 0,
+      customers: 0,
+      revenue: 0,
+      pendingOrders: 0,
+    };
+  }
 }
 
 function formatRevenue(amount: number) {

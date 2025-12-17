@@ -6,7 +6,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCartStore } from "@/lib/store/cart-store";
-import { Product } from "@/lib/types/product";
+import { Product } from "@/lib/db/schema";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
 
@@ -26,8 +26,8 @@ export function ProductCard({ product }: ProductCardProps) {
     addItem({
       productId: product.id,
       name: product.name,
-      price: product.price,
-      image_url: product.image_url || undefined,
+      price: Number(product.price),
+      image_url: product.imageUrl || undefined,
     });
     toast.success(`${product.name} ditambahkan ke keranjang`);
   };
@@ -60,14 +60,16 @@ export function ProductCard({ product }: ProductCardProps) {
     };
   };
 
-  const stockStatus = getStockStatus(product.stock);
+  const stockStatus = getStockStatus(product.stock ?? 0);
+
+  const priceNum = Number(product.price);
 
   return (
     <Card className="product-card group">
       <div className="product-card-image">
-        {product.image_url ? (
+        {product.imageUrl ? (
           <Image
-            src={product.image_url}
+            src={product.imageUrl}
             alt={product.name}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -119,9 +121,8 @@ export function ProductCard({ product }: ProductCardProps) {
               {[...Array(5)].map((_, i) => (
                 <Star
                   key={i}
-                  className={`h-4 w-4 ${
-                    i < 4 ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-                  }`}
+                  className={`h-4 w-4 ${i < 4 ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+                    }`}
                 />
               ))}
             </div>
@@ -130,8 +131,8 @@ export function ProductCard({ product }: ProductCardProps) {
 
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <p className="product-price">{formatPrice(product.price)}</p>
-              {product.stock > 0 && (
+              <p className="product-price">{formatPrice(priceNum)}</p>
+              {(product.stock ?? 0) > 0 && (
                 <p className="text-sm text-gray-500">
                   Stok: {product.stock} pcs
                 </p>
@@ -139,7 +140,7 @@ export function ProductCard({ product }: ProductCardProps) {
             </div>
 
             <div className="text-right">
-              {product.stock > 10 && (
+              {(product.stock ?? 0) > 10 && (
                 <p className="text-xs text-green-600 font-medium">
                   Ready Stock
                 </p>
