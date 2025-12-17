@@ -13,8 +13,10 @@ import {
   Shield,
   CheckCircle,
   Store,
+  Loader2,
 } from "lucide-react";
 import { useCartStore } from "@/lib/store/cart-store";
+import { supabase } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -27,14 +29,17 @@ import {
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
 
-const WHATSAPP_NUMBER = "6281239602221";
+const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "6281239602221";
 
 export default function CheckoutPage() {
   const { items, updateQuantity, removeItem, clearCart, getTotalPrice } =
     useCartStore();
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
+  const [phone, setPhone] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("id-ID", {
@@ -44,37 +49,92 @@ export default function CheckoutPage() {
     }).format(price * 1000);
   };
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (!name.trim() || !address.trim()) {
-      alert("Mohon lengkapi nama dan alamat pengiriman");
+      toast.error("Mohon lengkapi nama dan alamat pengiriman");
       return;
     }
 
     if (items.length === 0) {
-      alert("Keranjang belanja kosong");
+      toast.error("Keranjang belanja kosong");
       return;
     }
 
-    let message = `Halo, saya ingin memesan:\n\n`;
+    setIsSubmitting(true);
 
-    items.forEach((item, index) => {
-      message += `${index + 1}. ${item.name}\n`;
-      message += `   Jumlah: ${item.quantity}\n`;
-      message += `   Harga: ${formatPrice(item.price)}\n`;
-      message += `   Subtotal: ${formatPrice(item.price * item.quantity)}\n\n`;
-    });
+    try {
+      // 1. Save order to database
+      const { data: order, error: orderError } = await supabase
+        .from("orders")
+        .insert({
+          customer_name: name.trim(),
+          customer_address: address.trim(),
+          customer_phone: phone.trim() || null,
+          total_amount: getTotalPrice(),
+          status: "pending",
+          whatsapp_sent: true,
+        })
+        .select()
+        .single();
 
-    message += `*Total: ${formatPrice(getTotalPrice())}*\n\n`;
-    message += `Nama: ${name}\n`;
-    message += `Alamat Pengiriman: ${address}`;
+      if (orderError) {
+        console.error("Order error:", orderError);
+        throw new Error("Gagal menyimpan pesanan");
+      }
 
-    const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
+      // 2. Save order items
+      const orderItems = items.map((item) => ({
+        order_id: order.id,
+        product_id: item.productId,
+        product_name: item.name,
+        quantity: item.quantity,
+        price: item.price,
+      }));
 
-    window.open(whatsappUrl, "_blank");
-    clearCart();
-    setName("");
-    setAddress("");
+      const { error: itemsError } = await supabase
+        .from("order_items")
+        .insert(orderItems);
+
+      if (itemsError) {
+        console.error("Order items error:", itemsError);
+        // Order was saved, but items failed - don't block WhatsApp
+      }
+
+      // 3. Build WhatsApp message with order ID
+      let message = `Halo, saya ingin memesan:\n\n`;
+      message += `📋 *Order ID: ${order.id.slice(0, 8).toUpperCase()}*\n\n`;
+
+      items.forEach((item, index) => {
+        message += `${index + 1}. ${item.name}\n`;
+        message += `   Jumlah: ${item.quantity}\n`;
+        message += `   Harga: ${formatPrice(item.price)}\n`;
+        message += `   Subtotal: ${formatPrice(item.price * item.quantity)}\n\n`;
+      });
+
+      message += `*Total: ${formatPrice(getTotalPrice())}*\n\n`;
+      message += `👤 Nama: ${name}\n`;
+      message += `📍 Alamat: ${address}`;
+      if (phone) {
+        message += `\n📱 Telepon: ${phone}`;
+      }
+
+      const encodedMessage = encodeURIComponent(message);
+      const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
+
+      toast.success("Pesanan berhasil disimpan!");
+
+      // 4. Open WhatsApp and clear cart
+      window.open(whatsappUrl, "_blank");
+      clearCart();
+      setName("");
+      setAddress("");
+      setPhone("");
+    } catch (error) {
+      console.error("Checkout error:", error);
+      toast.error("Terjadi kesalahan saat memproses pesanan");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (items.length === 0) {

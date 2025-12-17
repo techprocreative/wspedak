@@ -8,6 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 
+const STORE_PHONE = process.env.NEXT_PUBLIC_STORE_PHONE || "6281239602221";
+const STORE_EMAIL = process.env.NEXT_PUBLIC_STORE_EMAIL || "nedhms@gmail.com";
+
 export function Navbar() {
   const totalItems = useCartStore((state) => state.getTotalItems());
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -76,11 +79,11 @@ export function Navbar() {
             <div className="hidden lg:flex items-center gap-4 text-sm">
               <div className="flex items-center gap-2 text-gray-600">
                 <Phone className="h-4 w-4" />
-                <span>(021) 1234-5678</span>
+                <span>{STORE_PHONE}</span>
               </div>
               <div className="flex items-center gap-2 text-gray-600">
                 <Mail className="h-4 w-4" />
-                <span>info@toserbawspedak.id</span>
+                <span>{STORE_EMAIL}</span>
               </div>
               <Link href="/login">
                 <Button
@@ -165,11 +168,11 @@ export function Navbar() {
               <div className="border-t border-blue-100 pt-4 space-y-3">
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <Phone className="h-4 w-4" />
-                  <span>(021) 1234-5678</span>
+                  <span>{STORE_PHONE}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <Mail className="h-4 w-4" />
-                  <span>info@toserbawspedak.id</span>
+                  <span>{STORE_EMAIL}</span>
                 </div>
               </div>
             </div>
