@@ -85,15 +85,6 @@ export function Navbar() {
                 <Mail className="h-4 w-4" />
                 <span>{STORE_EMAIL}</span>
               </div>
-              <Link href="/login">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                >
-                  Admin Login
-                </Button>
-              </Link>
             </div>
 
             {/* Cart Button */}
