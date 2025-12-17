@@ -62,8 +62,9 @@ export default function RegisterPage() {
 
       toast.success("Registrasi berhasil! Akun admin Anda telah dibuat.");
       router.push("/login");
-    } catch (error) {
-      toast.error("Terjadi kesalahan, silakan coba lagi");
+    } catch (error: any) {
+      console.error("Registration error:", error);
+      toast.error(error?.message || "Terjadi kesalahan, silakan coba lagi");
       setLoading(false);
     }
   };
