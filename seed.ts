@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { db, products, userRoles } from "./lib/db";
 
 async function seed() {
