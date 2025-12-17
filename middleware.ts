@@ -8,10 +8,27 @@ export async function middleware(request: NextRequest) {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-    const accessToken = request.cookies.get('sb-access-token')?.value;
-    const refreshToken = request.cookies.get('sb-refresh-token')?.value;
+    // Get all cookies and find the Supabase auth token
+    const cookies = request.cookies.getAll();
+    let accessToken: string | undefined;
 
-    if (!accessToken && !refreshToken) {
+    // Supabase stores auth in various cookie formats
+    for (const cookie of cookies) {
+      if (cookie.name.includes('auth-token') || cookie.name.includes('access-token')) {
+        try {
+          // Cookie value might be JSON encoded
+          const parsed = JSON.parse(cookie.value);
+          accessToken = parsed.access_token || parsed.accessToken;
+        } catch {
+          // If not JSON, use value directly
+          if (cookie.value.startsWith('eyJ')) {
+            accessToken = cookie.value;
+          }
+        }
+      }
+    }
+
+    if (!accessToken) {
       const loginUrl = new URL('/login', request.url);
       return NextResponse.redirect(loginUrl);
     }
@@ -54,10 +71,10 @@ export async function middleware(request: NextRequest) {
         }
       } else {
         // If role check fails, allow access (backwards compatibility)
-        // In production, you may want to deny access instead
         console.warn('Role check failed, allowing access for backwards compatibility');
       }
     } catch (error) {
+      console.error('Middleware error:', error);
       const loginUrl = new URL('/login', request.url);
       return NextResponse.redirect(loginUrl);
     }
@@ -69,4 +86,3 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: '/admin/:path*',
 };
-
