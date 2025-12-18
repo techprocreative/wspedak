@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Image as ImageIcon, ArrowLeft, Plus, Trash2, GripVertical, Eye, EyeOff, Save, Loader2, Pencil } from "lucide-react";
+import { Image as ImageIcon, ArrowLeft, Plus, Trash2, GripVertical, Eye, EyeOff, Save, Loader2, Pencil, Camera, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,6 +27,10 @@ export default function BannersPage() {
     const [showAddForm, setShowAddForm] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
 
+    // Image Upload State
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+
     useEffect(() => {
         fetchBanners();
     }, []);
@@ -47,21 +51,79 @@ export default function BannersPage() {
         setLoading(false);
     }
 
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+                toast.error("Ukuran gambar maksimal 5MB");
+                return;
+            }
+            setImageFile(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const uploadImage = async (file: File): Promise<string | null> => {
+        try {
+            const fileExt = file.name.split(".").pop();
+            const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+            const filePath = `${fileName}`;
+
+            const { error: uploadError, data } = await supabase.storage
+                .from("banners")
+                .upload(filePath, file);
+
+            if (uploadError) {
+                throw uploadError;
+            }
+
+            const { data: publicUrlData } = supabase.storage
+                .from("banners")
+                .getPublicUrl(filePath);
+
+            return publicUrlData.publicUrl;
+        } catch (error) {
+            console.error("Upload error:", error);
+            toast.error("Gagal mengupload gambar");
+            return null;
+        }
+    };
+
     async function handleSaveBanner() {
-        if (!newBanner.title || !newBanner.image_url) {
-            toast.error("Judul dan URL gambar wajib diisi");
+        if (!newBanner.title) {
+            toast.error("Judul wajib diisi");
+            return;
+        }
+
+        if (!imageFile && !newBanner.image_url) {
+            toast.error("Gambar wajib diisi");
             return;
         }
 
         setSaving(true);
         try {
+            let finalImageUrl = newBanner.image_url;
+
+            if (imageFile) {
+                const uploadedUrl = await uploadImage(imageFile);
+                if (!uploadedUrl) {
+                    setSaving(false);
+                    return;
+                }
+                finalImageUrl = uploadedUrl;
+            }
+
             if (editingId) {
                 // Update existing banner
                 const { error } = await supabase
                     .from("banners")
                     .update({
                         title: newBanner.title,
-                        image_url: newBanner.image_url,
+                        image_url: finalImageUrl,
                         link_url: newBanner.link_url || null,
                     })
                     .eq("id", editingId);
@@ -72,7 +134,7 @@ export default function BannersPage() {
                 // Create new banner
                 const { error } = await supabase.from("banners").insert({
                     title: newBanner.title,
-                    image_url: newBanner.image_url,
+                    image_url: finalImageUrl,
                     link_url: newBanner.link_url || null,
                     is_active: true,
                     order_index: banners.length,
@@ -82,9 +144,7 @@ export default function BannersPage() {
                 toast.success("Banner berhasil ditambahkan");
             }
 
-            setNewBanner({ title: "", image_url: "", link_url: "" });
-            setShowAddForm(false);
-            setEditingId(null);
+            handleCancel();
             fetchBanners();
         } catch (error) {
             console.error(error);
@@ -99,6 +159,8 @@ export default function BannersPage() {
             image_url: banner.image_url,
             link_url: banner.link_url || "",
         });
+        setImagePreview(banner.image_url);
+        setImageFile(null);
         setEditingId(banner.id);
         setShowAddForm(true);
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -106,6 +168,8 @@ export default function BannersPage() {
 
     function handleCancel() {
         setNewBanner({ title: "", image_url: "", link_url: "" });
+        setImageFile(null);
+        setImagePreview(null);
         setShowAddForm(false);
         setEditingId(null);
     }
@@ -176,39 +240,95 @@ export default function BannersPage() {
                             {editingId ? "Edit Banner" : "Tambah Banner Baru"}
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4">
+                    <CardContent className="space-y-6">
+                        {/* Image Upload Area */}
                         <div>
-                            <label className="text-sm font-medium text-gray-700">Judul Banner</label>
-                            <Input
-                                placeholder="Contoh: Promo Akhir Tahun"
-                                value={newBanner.title}
-                                onChange={(e) => setNewBanner({ ...newBanner, title: e.target.value })}
-                                className="mt-1"
-                            />
+                            <label className="text-sm font-medium text-gray-700 block mb-2">Gambar Banner</label>
+                            <div className="flex flex-col items-center">
+                                <div className="relative group w-full max-w-xl">
+                                    <label
+                                        htmlFor="banner-upload"
+                                        className="block w-full cursor-pointer"
+                                    >
+                                        {imagePreview ? (
+                                            <div className="relative w-full aspect-[3/1] rounded-xl overflow-hidden border-2 border-blue-200 shadow-md">
+                                                <Image
+                                                    src={imagePreview}
+                                                    alt="Banner preview"
+                                                    fill
+                                                    className="object-cover"
+                                                />
+                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                                                    <div className="bg-white/90 text-gray-800 px-4 py-2 rounded-full font-medium flex items-center gap-2 shadow-lg">
+                                                        <Camera className="h-4 w-4" />
+                                                        Ganti Gambar
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="w-full aspect-[3/1] border-2 border-dashed border-blue-300 rounded-xl flex flex-col items-center justify-center bg-blue-50/50 hover:bg-blue-50 transition-colors group">
+                                                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                                                    <Camera className="h-6 w-6 text-blue-500" />
+                                                </div>
+                                                <p className="text-sm font-medium text-blue-700">
+                                                    Klik untuk upload gambar
+                                                </p>
+                                                <p className="text-xs text-blue-500 mt-1">
+                                                    Rekomendasi: 1200x400 px (Max 5MB)
+                                                </p>
+                                            </div>
+                                        )}
+                                    </label>
+                                    <Input
+                                        id="banner-upload"
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleImageChange}
+                                        className="sr-only"
+                                    />
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <label className="text-sm font-medium text-gray-700">URL Gambar</label>
-                            <Input
-                                placeholder="https://example.com/banner.jpg"
-                                value={newBanner.image_url}
-                                onChange={(e) => setNewBanner({ ...newBanner, image_url: e.target.value })}
-                                className="mt-1"
-                            />
-                            <p className="text-xs text-gray-500 mt-1">Ukuran rekomendasi: 1200x400 pixels (rasio 3:1)</p>
+
+                        <div className="grid gap-4">
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Judul Banner</label>
+                                <Input
+                                    placeholder="Contoh: Promo Akhir Tahun"
+                                    value={newBanner.title}
+                                    onChange={(e) => setNewBanner({ ...newBanner, title: e.target.value })}
+                                    className="mt-1"
+                                />
+                            </div>
+
+                            {/* Optional: Manual URL input if needed, hidden if file selected but kept for flexibility */}
+                            {!imageFile && !imagePreview && (
+                                <div>
+                                    <label className="text-sm font-medium text-gray-700">Atau URL Gambar Eksternal</label>
+                                    <Input
+                                        placeholder="https://example.com/banner.jpg"
+                                        value={newBanner.image_url}
+                                        onChange={(e) => setNewBanner({ ...newBanner, image_url: e.target.value })}
+                                        className="mt-1"
+                                    />
+                                </div>
+                            )}
+
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Link Tujuan (opsional)</label>
+                                <Input
+                                    placeholder="/products atau /products?category=Sembako"
+                                    value={newBanner.link_url}
+                                    onChange={(e) => setNewBanner({ ...newBanner, link_url: e.target.value })}
+                                    className="mt-1"
+                                />
+                            </div>
                         </div>
-                        <div>
-                            <label className="text-sm font-medium text-gray-700">Link Tujuan (opsional)</label>
-                            <Input
-                                placeholder="/products atau /products?category=Sembako"
-                                value={newBanner.link_url}
-                                onChange={(e) => setNewBanner({ ...newBanner, link_url: e.target.value })}
-                                className="mt-1"
-                            />
-                        </div>
-                        <div className="flex gap-2">
+
+                        <div className="flex gap-2 pt-2">
                             <Button onClick={handleSaveBanner} disabled={saving} className="btn-primary">
                                 {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
-                                {editingId ? "Simpan Perubahan" : "Simpan"}
+                                {editingId ? "Simpan Perubahan" : "Simpan Banner"}
                             </Button>
                             <Button variant="outline" onClick={handleCancel}>
                                 Batal
@@ -253,7 +373,7 @@ export default function BannersPage() {
                                     </div>
 
                                     {/* Banner Preview */}
-                                    <div className="relative w-32 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                                    <div className="relative w-32 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 border border-gray-200">
                                         <Image
                                             src={banner.image_url}
                                             alt={banner.title}
