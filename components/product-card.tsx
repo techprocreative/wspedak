@@ -107,9 +107,11 @@ export function ProductCard({ product }: ProductCardProps) {
 
       <CardContent className="p-3 sm:p-5 space-y-2 sm:space-y-3">
         <div className="space-y-2 sm:space-y-3">
-          <h3 className="font-semibold text-sm sm:text-lg text-gray-900 line-clamp-2 sm:line-clamp-1 group-hover:text-blue-600 transition-colors duration-200 h-10 sm:h-auto">
-            {product.name}
-          </h3>
+          <Link href={`/products/${product.id}`}>
+            <h3 className="font-semibold text-sm sm:text-lg text-gray-900 line-clamp-2 sm:line-clamp-1 hover:text-blue-600 transition-colors duration-200 h-10 sm:h-auto cursor-pointer">
+              {product.name}
+            </h3>
+          </Link>
 
           {product.description && (
             <p className="hidden sm:block text-sm text-gray-600 line-clamp-2">
@@ -140,19 +142,22 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
       </CardContent>
 
-      <CardFooter className="p-3 sm:p-5 pt-0">
+      <CardFooter className="p-3 sm:p-5 pt-0 flex gap-2">
+        <Link href={`/products/${product.id}`} className="flex-1">
+          <Button
+            variant="outline"
+            className="w-full h-9 sm:h-11 text-xs sm:text-base border-blue-200 hover:border-blue-400 hover:bg-blue-50 text-blue-600"
+          >
+            Detail
+          </Button>
+        </Link>
         <Button
           onClick={handleAddToCart}
           disabled={product.stock === 0}
-          className="w-full btn-primary group relative overflow-hidden h-9 sm:h-11 text-xs sm:text-base px-2 sm:px-4"
+          className="flex-1 btn-primary h-9 sm:h-11 text-xs sm:text-base px-2 sm:px-4"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-          <div className="relative flex items-center justify-center gap-2">
-            <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5 group-hover:animate-bounce" />
-            <span>
-              {product.stock === 0 ? "Habis" : "Beli"}
-            </span>
-          </div>
+          <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5 mr-1" />
+          {product.stock === 0 ? "Habis" : "Beli"}
         </Button>
       </CardFooter>
     </Card>
