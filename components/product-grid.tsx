@@ -1,15 +1,24 @@
 import { db, products } from "@/lib/db";
 import { desc } from "drizzle-orm";
 import { ProductGridClient } from "./product-grid-client";
+import { ProductGridHome } from "./product-grid-home";
 import { Package, RefreshCw } from "lucide-react";
 import Link from "next/link";
 
-export async function ProductGrid() {
+interface ProductGridProps {
+  variant?: "home" | "full";
+}
+
+export async function ProductGrid({ variant = "home" }: ProductGridProps) {
   try {
     const productList = await db
       .select()
       .from(products)
       .orderBy(desc(products.createdAt));
+
+    if (variant === "home") {
+      return <ProductGridHome products={productList} maxProducts={8} />;
+    }
 
     return <ProductGridClient products={productList} />;
   } catch (error) {
@@ -38,5 +47,3 @@ export async function ProductGrid() {
     );
   }
 }
-
-

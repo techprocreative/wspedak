@@ -41,7 +41,7 @@ export default function ProductsPage() {
             <section className="section-spacing">
                 <div className="container-supermarket">
                     <Suspense fallback={<ProductGridSkeleton />}>
-                        <ProductGrid />
+                        <ProductGrid variant="full" />
                     </Suspense>
                 </div>
             </section>
