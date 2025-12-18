@@ -67,7 +67,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <Card className="product-card group">
-      <Link href={`/products/${product.id}`} className="product-card-image cursor-pointer">
+      <Link href={`/products/${product.id}`} className="block product-card-image cursor-pointer">
         {product.imageUrl ? (
           <Image
             src={product.imageUrl}
