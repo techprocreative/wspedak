@@ -104,42 +104,42 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
       </div>
 
-      <CardContent className="product-card-content">
-        <div className="space-y-3">
-          <h3 className="font-semibold text-lg text-gray-900 line-clamp-1 group-hover:text-blue-600 transition-colors duration-200">
+      <CardContent className="p-3 sm:p-5 space-y-2 sm:space-y-3">
+        <div className="space-y-2 sm:space-y-3">
+          <h3 className="font-semibold text-sm sm:text-lg text-gray-900 line-clamp-2 sm:line-clamp-1 group-hover:text-blue-600 transition-colors duration-200 h-10 sm:h-auto">
             {product.name}
           </h3>
 
           {product.description && (
-            <p className="text-sm text-gray-600 line-clamp-2">
+            <p className="hidden sm:block text-sm text-gray-600 line-clamp-2">
               {product.description}
             </p>
           )}
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             <div className="flex items-center">
               {[...Array(5)].map((_, i) => (
                 <Star
                   key={i}
-                  className={`h-4 w-4 ${i < 4 ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+                  className={`h-3 w-3 sm:h-4 sm:w-4 ${i < 4 ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
                     }`}
                 />
               ))}
             </div>
-            <span className="text-sm text-gray-500">(4.0)</span>
+            <span className="text-xs sm:text-sm text-gray-500">(4.0)</span>
           </div>
 
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
             <div className="space-y-1">
-              <p className="product-price">{formatPrice(priceNum)}</p>
+              <p className="text-base sm:text-2xl font-bold text-blue-600">{formatPrice(priceNum)}</p>
               {(product.stock ?? 0) > 0 && (
-                <p className="text-sm text-gray-500">
-                  Stok: {product.stock} pcs
+                <p className="text-xs sm:text-sm text-gray-500">
+                  Stok: {product.stock}
                 </p>
               )}
             </div>
 
-            <div className="text-right">
+            <div className="text-right hidden sm:block">
               {(product.stock ?? 0) > 10 && (
                 <p className="text-xs text-green-600 font-medium">
                   Ready Stock
@@ -150,17 +150,17 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
       </CardContent>
 
-      <CardFooter className="p-5 pt-0">
+      <CardFooter className="p-3 sm:p-5 pt-0">
         <Button
           onClick={handleAddToCart}
           disabled={product.stock === 0}
-          className="w-full btn-primary group relative overflow-hidden"
+          className="w-full btn-primary group relative overflow-hidden h-9 sm:h-11 text-xs sm:text-base px-2 sm:px-4"
         >
           <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           <div className="relative flex items-center justify-center gap-2">
-            <ShoppingCart className="h-5 w-5 group-hover:animate-bounce" />
+            <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5 group-hover:animate-bounce" />
             <span>
-              {product.stock === 0 ? "Stok Habis" : "Tambah ke Keranjang"}
+              {product.stock === 0 ? "Habis" : "Beli"}
             </span>
           </div>
         </Button>

@@ -19,9 +19,9 @@ export function ProductGridClient({ products }: ProductGridClientProps) {
   if (!isMounted) {
     // Return loading skeleton during hydration
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 md:gap-8">
         {[...Array(8)].map((_, i) => (
-          <div key={i} className="skeleton-modern space-y-4 p-6">
+          <div key={i} className="skeleton-modern space-y-4 p-4 sm:p-6">
             <div className="aspect-square rounded-xl bg-gradient-to-br from-blue-50 to-blue-100"></div>
             <div className="h-4 bg-gradient-to-r from-blue-100 to-blue-50 rounded w-3/4"></div>
             <div className="h-4 bg-gradient-to-r from-blue-100 to-blue-50 rounded w-1/2"></div>
@@ -51,7 +51,7 @@ export function ProductGridClient({ products }: ProductGridClientProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 md:gap-8">
       {products.map((product) => (
         <ProductCard key={product.id} product={product as Product} />
       ))}

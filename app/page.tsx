@@ -19,9 +19,9 @@ export default function Home() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
               <div className="space-y-4">
-                <h1 className="text-4xl lg:text-6xl font-bold hero-text text-balance">
+                <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold hero-text text-balance">
                   Toserba WS Pedak
-                  <span className="block text-blue-100 text-2xl lg:text-3xl">
+                  <span className="block text-blue-100 text-xl md:text-2xl lg:text-3xl mt-2">
                     Murah • Lengkap • Luas
                   </span>
                 </h1>
