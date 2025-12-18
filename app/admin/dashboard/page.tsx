@@ -1,10 +1,14 @@
 import Link from "next/link";
-import { Plus, Package, TrendingUp, Users, ShoppingCart, ClipboardList, Tag } from "lucide-react";
+import { Plus, Package, TrendingUp, Users, ShoppingCart, ClipboardList, Tag, AlertTriangle, Star, FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProductTable } from "@/components/admin/product-table";
-import { Card, CardContent } from "@/components/ui/card";
-import { db, products, orders } from "@/lib/db";
-import { count, eq, sql } from "drizzle-orm";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { db, products, orders, orderItems } from "@/lib/db";
+import { count, eq, sql, lt, desc } from "drizzle-orm";
+
+export const dynamic = "force-dynamic";
+
+const LOW_STOCK_THRESHOLD = 10;
 
 async function getStats() {
   try {
@@ -28,12 +32,32 @@ async function getStats() {
       .from(orders)
       .where(eq(orders.status, "pending"));
 
+    // Get low stock products
+    const lowStockProducts = await db
+      .select()
+      .from(products)
+      .where(lt(products.stock, LOW_STOCK_THRESHOLD))
+      .orderBy(products.stock);
+
+    // Get best selling products (top 5)
+    const bestSellers = await db
+      .select({
+        productName: orderItems.productName,
+        totalSold: sql<number>`SUM(${orderItems.quantity})`.as('total_sold'),
+      })
+      .from(orderItems)
+      .groupBy(orderItems.productName)
+      .orderBy(desc(sql`SUM(${orderItems.quantity})`))
+      .limit(5);
+
     return {
       products: productResult?.count || 0,
       orders: orderResult?.count || 0,
       customers: uniqueCustomers.size,
       revenue: totalRevenue,
       pendingOrders: pendingResult?.count || 0,
+      lowStockProducts,
+      bestSellers,
     };
   } catch (error) {
     console.error("Error fetching stats:", error);
@@ -43,6 +67,8 @@ async function getStats() {
       customers: 0,
       revenue: 0,
       pendingOrders: 0,
+      lowStockProducts: [],
+      bestSellers: [],
     };
   }
 }
@@ -172,6 +198,107 @@ export default async function AdminDashboardPage() {
             Kelola Pesanan
           </Button>
         </Link>
+        <Link href="/admin/reports">
+          <Button variant="outline" className="border-blue-200 hover:border-blue-400">
+            <TrendingUp className="h-4 w-4 mr-2" />
+            Laporan
+          </Button>
+        </Link>
+        <Link href="/admin/customers">
+          <Button variant="outline" className="border-blue-200 hover:border-blue-400">
+            <Users className="h-4 w-4 mr-2" />
+            Pelanggan
+          </Button>
+        </Link>
+        <Link href="/admin/export">
+          <Button variant="outline" className="border-green-200 hover:border-green-400 text-green-700">
+            <FileDown className="h-4 w-4 mr-2" />
+            Export Data
+          </Button>
+        </Link>
+        <Link href="/admin/bulk-stock">
+          <Button variant="outline" className="border-orange-200 hover:border-orange-400 text-orange-700">
+            <Package className="h-4 w-4 mr-2" />
+            Update Stok
+          </Button>
+        </Link>
+      </div>
+
+      {/* Alerts Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Low Stock Alert */}
+        <Card className={`card-modern ${stats.lowStockProducts.length > 0 ? 'border-orange-300 bg-orange-50/50' : ''}`}>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <AlertTriangle className={`h-5 w-5 ${stats.lowStockProducts.length > 0 ? 'text-orange-500' : 'text-gray-400'}`} />
+              Stok Menipis
+              {stats.lowStockProducts.length > 0 && (
+                <span className="ml-auto bg-orange-500 text-white text-xs px-2 py-1 rounded-full">
+                  {stats.lowStockProducts.length}
+                </span>
+              )}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            {stats.lowStockProducts.length > 0 ? (
+              <div className="space-y-2 max-h-48 overflow-y-auto">
+                {stats.lowStockProducts.slice(0, 5).map((product) => (
+                  <Link
+                    key={product.id}
+                    href={`/admin/edit/${product.id}`}
+                    className="flex items-center justify-between p-2 rounded-lg hover:bg-orange-100 transition-colors"
+                  >
+                    <span className="font-medium text-gray-900 truncate">{product.name}</span>
+                    <span className={`text-sm font-bold px-2 py-1 rounded ${product.stock === 0 ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700'
+                      }`}>
+                      {product.stock === 0 ? 'Habis' : `${product.stock} pcs`}
+                    </span>
+                  </Link>
+                ))}
+                {stats.lowStockProducts.length > 5 && (
+                  <p className="text-sm text-gray-500 text-center pt-2">
+                    +{stats.lowStockProducts.length - 5} produk lainnya
+                  </p>
+                )}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-center py-4">Semua stok aman ✓</p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Best Sellers */}
+        <Card className="card-modern">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Star className="h-5 w-5 text-yellow-500" />
+              Produk Terlaris
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            {stats.bestSellers.length > 0 ? (
+              <div className="space-y-2">
+                {stats.bestSellers.map((item, index) => (
+                  <div key={item.productName} className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50">
+                    <div className="flex items-center gap-3">
+                      <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${index === 0 ? 'bg-yellow-100 text-yellow-700' :
+                        index === 1 ? 'bg-gray-200 text-gray-700' :
+                          index === 2 ? 'bg-orange-100 text-orange-700' :
+                            'bg-gray-100 text-gray-600'
+                        }`}>
+                        {index + 1}
+                      </span>
+                      <span className="font-medium text-gray-900 truncate">{item.productName}</span>
+                    </div>
+                    <span className="text-sm text-blue-600 font-semibold">{item.totalSold} terjual</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-center py-4">Belum ada data penjualan</p>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       {/* Products Section */}

@@ -1,11 +1,12 @@
 import { db, orders, orderItems, products } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Package, MapPin, Phone, User, Calendar, Clock } from "lucide-react";
+import { ArrowLeft, Package, MapPin, Phone, User, Calendar, Clock, Printer } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { PrintInvoiceButton } from "@/components/admin/print-invoice-button";
 
 interface OrderDetailPageProps {
     params: Promise<{ id: string }>;
@@ -59,22 +60,42 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
         }
     };
 
+    // Prepare order data for print
+    const orderData = {
+        id: order.id,
+        customerName: order.customerName,
+        customerAddress: order.customerAddress,
+        customerPhone: order.customerPhone,
+        totalAmount: order.totalAmount,
+        status: order.status,
+        notes: order.notes,
+        createdAt: order.createdAt?.toISOString() || null,
+        items: items.map((item) => ({
+            productName: item.productName,
+            quantity: item.quantity,
+            price: String(item.price),
+        })),
+    };
+
     return (
         <div className="min-h-screen bg-gray-50">
             <div className="container-supermarket py-8">
                 <div className="max-w-4xl mx-auto">
                     {/* Header */}
-                    <div className="flex items-center gap-4 mb-8">
-                        <Link href="/admin/orders">
-                            <Button variant="outline" className="border-gray-200">
-                                <ArrowLeft className="h-4 w-4 mr-2" />
-                                Kembali
-                            </Button>
-                        </Link>
-                        <div>
-                            <h1 className="text-2xl font-bold text-gray-900">Detail Pesanan</h1>
-                            <p className="text-gray-600">ID: {order.id.slice(0, 8)}...</p>
+                    <div className="flex items-center justify-between mb-8">
+                        <div className="flex items-center gap-4">
+                            <Link href="/admin/orders">
+                                <Button variant="outline" className="border-gray-200">
+                                    <ArrowLeft className="h-4 w-4 mr-2" />
+                                    Kembali
+                                </Button>
+                            </Link>
+                            <div>
+                                <h1 className="text-2xl font-bold text-gray-900">Detail Pesanan</h1>
+                                <p className="text-gray-600">ID: {order.id.slice(0, 8)}...</p>
+                            </div>
                         </div>
+                        <PrintInvoiceButton order={orderData} />
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
