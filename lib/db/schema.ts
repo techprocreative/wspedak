@@ -96,3 +96,19 @@ export const orderItemsRelations = relations(orderItems, ({ one }) => ({
         references: [products.id],
     }),
 }));
+
+// ============================================
+// Banners Table (for promo carousel)
+// ============================================
+export const banners = pgTable('banners', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    title: text('title').notNull(),
+    imageUrl: text('image_url').notNull(),
+    linkUrl: text('link_url'),
+    isActive: boolean('is_active').default(true),
+    orderIndex: integer('order_index').default(0),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+});
+
+export type Banner = typeof banners.$inferSelect;
+export type NewBanner = typeof banners.$inferInsert;
