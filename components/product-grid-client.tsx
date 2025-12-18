@@ -14,23 +14,40 @@ export function ProductGridClient({ products }: ProductGridClientProps) {
   const [isMounted, setIsMounted] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("Semua");
   const [categories, setCategories] = useState<string[]>(["Semua"]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
 
   useEffect(() => {
     setIsMounted(true);
 
     // Fetch categories from database
     async function fetchCategories() {
-      const { data, error } = await supabase
-        .from("categories")
-        .select("name")
-        .order("name", { ascending: true });
+      try {
+        const { data, error } = await supabase
+          .from("categories")
+          .select("name")
+          .order("name", { ascending: true });
 
-      if (data && !error) {
-        setCategories(["Semua", ...data.map((c) => c.name)]);
+        if (data && !error && data.length > 0) {
+          setCategories(["Semua", ...data.map((c) => c.name)]);
+        } else {
+          // Fallback: get unique categories from products
+          const uniqueCategories = Array.from(new Set(products.map(p => p.category).filter((c): c is string => c !== null)));
+          if (uniqueCategories.length > 0) {
+            setCategories(["Semua", ...uniqueCategories.sort()]);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+        // Fallback: get unique categories from products
+        const uniqueCategories = Array.from(new Set(products.map(p => p.category).filter((c): c is string => c !== null)));
+        if (uniqueCategories.length > 0) {
+          setCategories(["Semua", ...uniqueCategories.sort()]);
+        }
       }
+      setLoadingCategories(false);
     }
     fetchCategories();
-  }, []);
+  }, [products]);
 
   const filteredProducts = selectedCategory === "Semua"
     ? products
