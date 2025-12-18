@@ -10,6 +10,9 @@ export const metadata: Metadata = {
     description: "Lihat semua produk kebutuhan harian di Toserba WS Pedak dengan harga murah dan kualitas terjamin.",
 };
 
+// Force dynamic rendering to always fetch fresh data from database
+export const dynamic = "force-dynamic";
+
 export default function ProductsPage() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50">

@@ -1,5 +1,8 @@
 import { Navbar } from "@/components/navbar";
 import { ProductGrid } from "@/components/product-grid";
+
+// Force dynamic rendering to always fetch fresh data from database
+export const dynamic = "force-dynamic";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ShoppingCart, Truck, Shield, Star, Store } from "lucide-react";
