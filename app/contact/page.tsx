@@ -127,8 +127,9 @@ export default function ContactPage() {
                             <CardContent>
                                 <p className="text-gray-600 leading-relaxed">
                                     <strong>Toserba WS Pedak</strong><br />
-                                    Jl. Raya Pedak<br />
-                                    Pedak, Indonesia
+                                    Kaliurang St No.KM.11<br />
+                                    Pedak, Sinduharjo, Ngaglik<br />
+                                    Sleman Regency, Special Region of Yogyakarta 55581
                                 </p>
                                 <p className="text-sm text-gray-500 mt-4">
                                     Toko kami mudah dijangkau dan terletak di lokasi strategis di kawasan Pedak.
@@ -146,12 +147,8 @@ export default function ContactPage() {
                             <CardContent>
                                 <div className="space-y-3">
                                     <div className="flex justify-between">
-                                        <span className="text-gray-600">Senin - Sabtu</span>
-                                        <span className="font-semibold">07:00 - 21:00</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-600">Minggu</span>
-                                        <span className="font-semibold">08:00 - 20:00</span>
+                                        <span className="text-gray-600">Setiap Hari</span>
+                                        <span className="font-semibold">08:00 - 21:30</span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span className="text-gray-600">Hari Libur Nasional</span>
