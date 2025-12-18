@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Image as ImageIcon, ArrowLeft, Plus, Trash2, GripVertical, Eye, EyeOff, Save, Loader2 } from "lucide-react";
+import { Image as ImageIcon, ArrowLeft, Plus, Trash2, GripVertical, Eye, EyeOff, Save, Loader2, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,6 +25,7 @@ export default function BannersPage() {
     const [saving, setSaving] = useState(false);
     const [newBanner, setNewBanner] = useState({ title: "", image_url: "", link_url: "" });
     const [showAddForm, setShowAddForm] = useState(false);
+    const [editingId, setEditingId] = useState<string | null>(null);
 
     useEffect(() => {
         fetchBanners();
@@ -46,7 +47,7 @@ export default function BannersPage() {
         setLoading(false);
     }
 
-    async function handleAddBanner() {
+    async function handleSaveBanner() {
         if (!newBanner.title || !newBanner.image_url) {
             toast.error("Judul dan URL gambar wajib diisi");
             return;
@@ -54,24 +55,59 @@ export default function BannersPage() {
 
         setSaving(true);
         try {
-            const { error } = await supabase.from("banners").insert({
-                title: newBanner.title,
-                image_url: newBanner.image_url,
-                link_url: newBanner.link_url || null,
-                is_active: true,
-                order_index: banners.length,
-            });
+            if (editingId) {
+                // Update existing banner
+                const { error } = await supabase
+                    .from("banners")
+                    .update({
+                        title: newBanner.title,
+                        image_url: newBanner.image_url,
+                        link_url: newBanner.link_url || null,
+                    })
+                    .eq("id", editingId);
 
-            if (error) throw error;
-            toast.success("Banner berhasil ditambahkan");
+                if (error) throw error;
+                toast.success("Banner berhasil diperbarui");
+            } else {
+                // Create new banner
+                const { error } = await supabase.from("banners").insert({
+                    title: newBanner.title,
+                    image_url: newBanner.image_url,
+                    link_url: newBanner.link_url || null,
+                    is_active: true,
+                    order_index: banners.length,
+                });
+
+                if (error) throw error;
+                toast.success("Banner berhasil ditambahkan");
+            }
+
             setNewBanner({ title: "", image_url: "", link_url: "" });
             setShowAddForm(false);
+            setEditingId(null);
             fetchBanners();
         } catch (error) {
             console.error(error);
-            toast.error("Gagal menambahkan banner");
+            toast.error(editingId ? "Gagal memperbarui banner" : "Gagal menambahkan banner");
         }
         setSaving(false);
+    }
+
+    function handleEdit(banner: Banner) {
+        setNewBanner({
+            title: banner.title,
+            image_url: banner.image_url,
+            link_url: banner.link_url || "",
+        });
+        setEditingId(banner.id);
+        setShowAddForm(true);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function handleCancel() {
+        setNewBanner({ title: "", image_url: "", link_url: "" });
+        setShowAddForm(false);
+        setEditingId(null);
     }
 
     async function handleToggleActive(id: string, currentState: boolean) {
@@ -120,17 +156,25 @@ export default function BannersPage() {
                         <p className="text-gray-600">Atur banner promo untuk carousel di landing page</p>
                     </div>
                 </div>
-                <Button onClick={() => setShowAddForm(!showAddForm)} className="btn-primary">
+                <Button
+                    onClick={() => {
+                        handleCancel();
+                        setShowAddForm(!showAddForm);
+                    }}
+                    className="btn-primary"
+                >
                     <Plus className="h-4 w-4 mr-2" />
                     Tambah Banner
                 </Button>
             </div>
 
-            {/* Add Banner Form */}
+            {/* Add/Edit Banner Form */}
             {showAddForm && (
                 <Card className="card-modern border-blue-200 bg-blue-50/50">
                     <CardHeader>
-                        <CardTitle className="text-lg">Tambah Banner Baru</CardTitle>
+                        <CardTitle className="text-lg">
+                            {editingId ? "Edit Banner" : "Tambah Banner Baru"}
+                        </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div>
@@ -162,11 +206,11 @@ export default function BannersPage() {
                             />
                         </div>
                         <div className="flex gap-2">
-                            <Button onClick={handleAddBanner} disabled={saving} className="btn-primary">
+                            <Button onClick={handleSaveBanner} disabled={saving} className="btn-primary">
                                 {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
-                                Simpan
+                                {editingId ? "Simpan Perubahan" : "Simpan"}
                             </Button>
-                            <Button variant="outline" onClick={() => setShowAddForm(false)}>
+                            <Button variant="outline" onClick={handleCancel}>
                                 Batal
                             </Button>
                         </div>
@@ -238,6 +282,15 @@ export default function BannersPage() {
 
                                     {/* Actions */}
                                     <div className="flex items-center gap-2">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => handleEdit(banner)}
+                                            className="text-blue-600 hover:text-blue-700 hover:border-blue-300"
+                                            title="Edit Banner"
+                                        >
+                                            <Pencil className="h-4 w-4" />
+                                        </Button>
                                         <Button
                                             variant="outline"
                                             size="sm"
