@@ -2,6 +2,19 @@ import { pgTable, uuid, text, numeric, integer, timestamp, boolean } from 'drizz
 import { relations } from 'drizzle-orm';
 
 // ============================================
+// Categories Table
+// ============================================
+export const categories = pgTable('categories', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    name: text('name').notNull().unique(),
+    description: text('description'),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+});
+
+export type Category = typeof categories.$inferSelect;
+export type NewCategory = typeof categories.$inferInsert;
+
+// ============================================
 // Products Table
 // ============================================
 export const products = pgTable('products', {

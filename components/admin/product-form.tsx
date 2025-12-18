@@ -20,15 +20,6 @@ import { supabase } from "@/lib/supabase/client";
 import { Product } from "@/lib/types/product";
 import { toast } from "sonner";
 
-const PRODUCT_CATEGORIES = [
-  "Sembako",
-  "Minuman",
-  "Makanan Ringan",
-  "Peralatan Rumah Tangga",
-  "Kosmetik & Perawatan",
-  "Lainnya",
-];
-
 interface ProductFormProps {
   product?: Product;
   isEdit?: boolean;
@@ -37,6 +28,7 @@ interface ProductFormProps {
 export function ProductForm({ product, isEdit = false }: ProductFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState<string[]>(["Lainnya"]);
   const [formData, setFormData] = useState({
     name: product?.name || "",
     description: product?.description || "",
@@ -48,6 +40,21 @@ export function ProductForm({ product, isEdit = false }: ProductFormProps) {
   const [imagePreview, setImagePreview] = useState<string | null>(
     product?.image_url || null,
   );
+
+  // Fetch categories from database
+  useEffect(() => {
+    async function fetchCategories() {
+      const { data, error } = await supabase
+        .from("categories")
+        .select("name")
+        .order("name", { ascending: true });
+
+      if (data && !error) {
+        setCategories(data.map((c) => c.name));
+      }
+    }
+    fetchCategories();
+  }, []);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -312,7 +319,7 @@ export function ProductForm({ product, isEdit = false }: ProductFormProps) {
                 <SelectValue placeholder="Pilih kategori" />
               </SelectTrigger>
               <SelectContent>
-                {PRODUCT_CATEGORIES.map((category) => (
+                {categories.map((category: string) => (
                   <SelectItem key={category} value={category}>
                     {category}
                   </SelectItem>

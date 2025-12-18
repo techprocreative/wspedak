@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus, Package, TrendingUp, Users, ShoppingCart, ClipboardList } from "lucide-react";
+import { Plus, Package, TrendingUp, Users, ShoppingCart, ClipboardList, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProductTable } from "@/components/admin/product-table";
 import { Card, CardContent } from "@/components/ui/card";
@@ -158,6 +158,12 @@ export default async function AdminDashboardPage() {
           <Button className="btn-primary">
             <Plus className="h-4 w-4 mr-2" />
             Tambah Produk
+          </Button>
+        </Link>
+        <Link href="/admin/categories">
+          <Button variant="outline" className="border-blue-200 hover:border-blue-400">
+            <Tag className="h-4 w-4 mr-2" />
+            Kelola Kategori
           </Button>
         </Link>
         <Link href="/admin/orders">

@@ -4,16 +4,7 @@ import { Product } from "@/lib/db/schema";
 import { ProductCard } from "./product-card";
 import { Package } from "lucide-react";
 import { useEffect, useState } from "react";
-
-const PRODUCT_CATEGORIES = [
-  "Semua",
-  "Sembako",
-  "Minuman",
-  "Makanan Ringan",
-  "Peralatan Rumah Tangga",
-  "Kosmetik & Perawatan",
-  "Lainnya",
-];
+import { supabase } from "@/lib/supabase/client";
 
 interface ProductGridClientProps {
   products: Product[];
@@ -22,9 +13,23 @@ interface ProductGridClientProps {
 export function ProductGridClient({ products }: ProductGridClientProps) {
   const [isMounted, setIsMounted] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("Semua");
+  const [categories, setCategories] = useState<string[]>(["Semua"]);
 
   useEffect(() => {
     setIsMounted(true);
+
+    // Fetch categories from database
+    async function fetchCategories() {
+      const { data, error } = await supabase
+        .from("categories")
+        .select("name")
+        .order("name", { ascending: true });
+
+      if (data && !error) {
+        setCategories(["Semua", ...data.map((c) => c.name)]);
+      }
+    }
+    fetchCategories();
   }, []);
 
   const filteredProducts = selectedCategory === "Semua"
@@ -68,13 +73,13 @@ export function ProductGridClient({ products }: ProductGridClientProps) {
     <div className="space-y-6">
       {/* Category Filter Tabs */}
       <div className="flex flex-wrap gap-2 justify-center">
-        {PRODUCT_CATEGORIES.map((category) => (
+        {categories.map((category: string) => (
           <button
             key={category}
             onClick={() => setSelectedCategory(category)}
             className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${selectedCategory === category
-                ? "bg-blue-600 text-white shadow-md"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              ? "bg-blue-600 text-white shadow-md"
+              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
           >
             {category}
