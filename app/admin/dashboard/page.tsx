@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus, Package, TrendingUp, Users, ShoppingCart, ClipboardList, Tag, AlertTriangle, Star, FileDown } from "lucide-react";
+import { Plus, Package, TrendingUp, Users, ShoppingCart, ClipboardList, Tag, AlertTriangle, Star, FileDown, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProductTable } from "@/components/admin/product-table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -220,6 +220,12 @@ export default async function AdminDashboardPage() {
           <Button variant="outline" className="border-orange-200 hover:border-orange-400 text-orange-700">
             <Package className="h-4 w-4 mr-2" />
             Update Stok
+          </Button>
+        </Link>
+        <Link href="/admin/bulk-price">
+          <Button variant="outline" className="border-emerald-200 hover:border-emerald-400 text-emerald-700">
+            <DollarSign className="h-4 w-4 mr-2" />
+            Update Harga
           </Button>
         </Link>
       </div>
