@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { ShoppingCart, Truck, Shield } from "lucide-react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -66,7 +67,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <Card className="product-card group">
-      <div className="product-card-image">
+      <Link href={`/products/${product.id}`} className="product-card-image cursor-pointer">
         {product.imageUrl ? (
           <Image
             src={product.imageUrl}
@@ -102,7 +103,7 @@ export function ProductCard({ product }: ProductCardProps) {
             </div>
           </div>
         </div>
-      </div>
+      </Link>
 
       <CardContent className="p-3 sm:p-5 space-y-2 sm:space-y-3">
         <div className="space-y-2 sm:space-y-3">
