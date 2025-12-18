@@ -105,40 +105,18 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
       </Link>
 
-      <CardContent className="p-3 sm:p-5 space-y-2 sm:space-y-3">
-        <div className="space-y-2 sm:space-y-3">
-          <Link href={`/products/${product.id}`}>
-            <h3 className="font-semibold text-sm sm:text-lg text-gray-900 line-clamp-2 sm:line-clamp-1 hover:text-blue-600 transition-colors duration-200 h-10 sm:h-auto cursor-pointer">
-              {product.name}
-            </h3>
-          </Link>
+      <CardContent className="p-3 sm:p-4">
+        <Link href={`/products/${product.id}`}>
+          <h3 className="font-semibold text-sm sm:text-base text-gray-900 line-clamp-2 hover:text-blue-600 transition-colors duration-200 cursor-pointer mb-2">
+            {product.name}
+          </h3>
+        </Link>
 
-          {product.description && (
-            <p className="hidden sm:block text-sm text-gray-600 line-clamp-2">
-              {product.description}
-            </p>
+        <div className="flex items-center justify-between">
+          <p className="text-lg sm:text-xl font-bold text-blue-600">{formatPrice(priceNum)}</p>
+          {(product.stock ?? 0) > 0 && (product.stock ?? 0) < 10 && (
+            <span className="text-xs text-orange-600 font-medium">Terbatas</span>
           )}
-
-
-
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-            <div className="space-y-1">
-              <p className="text-base sm:text-2xl font-bold text-blue-600">{formatPrice(priceNum)}</p>
-              {(product.stock ?? 0) > 0 && (
-                <p className="text-xs sm:text-sm text-gray-500">
-                  Stok: {product.stock}
-                </p>
-              )}
-            </div>
-
-            <div className="text-right hidden sm:block">
-              {(product.stock ?? 0) > 10 && (
-                <p className="text-xs text-green-600 font-medium">
-                  Ready Stock
-                </p>
-              )}
-            </div>
-          </div>
         </div>
       </CardContent>
 
