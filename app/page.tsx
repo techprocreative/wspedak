@@ -66,7 +66,7 @@ export default function Home() {
                     Selamat Datang
                   </h3>
                   <p className="text-blue-100">
-                    Toko terlengkap di Pedak untuk semua kebutuhan Anda
+                    Temukan berbagai produk berkualitas untuk kebutuhan sehari-hari Anda
                   </p>
                 </div>
               </div>
@@ -80,11 +80,11 @@ export default function Home() {
         <div className="container-supermarket">
           <div className="text-center mb-12">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-              Mengapa Memilih Toserba WS Pedak?
+              Kenapa Belanja di Toserba WS Pedak?
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Kami berkomitmen memberikan pengalaman belanja terbaik dengan
-              produk berkualitas dan layanan prima di kawasan Pedak.
+              Belanja kebutuhan harian jadi lebih mudah, hemat, dan menyenangkan.
+              Nikmati kemudahan berbelanja dengan harga bersahabat!
             </p>
           </div>
 
