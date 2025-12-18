@@ -1,3 +1,5 @@
+import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
 import { Store, Users, Award, MapPin, Phone, Mail, Clock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
@@ -10,6 +12,7 @@ export const metadata = {
 export default function AboutPage() {
     return (
         <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+            <Navbar />
             {/* Hero Section */}
             <section className="container-supermarket py-16 text-center">
                 <div className="max-w-3xl mx-auto">
@@ -108,7 +111,7 @@ export default function AboutPage() {
                                 </div>
                                 <div>
                                     <p className="text-sm text-blue-200">Alamat</p>
-                                    <p className="font-medium">Pedak, Indonesia</p>
+                                    <p className="font-medium">Kaliurang St No.KM.11, Pedak</p>
                                 </div>
                             </div>
 
@@ -138,7 +141,7 @@ export default function AboutPage() {
                                 </div>
                                 <div>
                                     <p className="text-sm text-blue-200">Jam Operasional</p>
-                                    <p className="font-medium">07:00 - 21:00</p>
+                                    <p className="font-medium">08:00 - 21:30</p>
                                 </div>
                             </div>
                         </div>
@@ -154,6 +157,8 @@ export default function AboutPage() {
                     </CardContent>
                 </Card>
             </section>
+
+            <Footer />
         </div>
     );
 }

@@ -12,6 +12,7 @@ export const products = pgTable('products', {
     price: numeric('price').notNull(),
     imageUrl: text('image_url'),
     stock: integer('stock').default(0),
+    category: text('category').default('Lainnya'),
 });
 
 export type Product = typeof products.$inferSelect;

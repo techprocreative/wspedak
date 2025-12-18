@@ -1,6 +1,7 @@
 "use client";
 
 import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
 import { Phone, Mail, MapPin, Clock, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -161,14 +162,7 @@ export default function ContactPage() {
                 </div>
             </section>
 
-            {/* Footer */}
-            <footer className="bg-gray-900 text-white py-8">
-                <div className="container-supermarket text-center">
-                    <p className="text-gray-400">
-                        © 2024 Toserba WS Pedak. Murah • Lengkap • Luas
-                    </p>
-                </div>
-            </footer>
+            <Footer />
         </div>
     );
 }

@@ -1,4 +1,5 @@
 import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
 import { ProductGrid } from "@/components/product-grid";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -45,14 +46,7 @@ export default function ProductsPage() {
                 </div>
             </section>
 
-            {/* Footer */}
-            <footer className="bg-gray-900 text-white py-8">
-                <div className="container-supermarket text-center">
-                    <p className="text-gray-400">
-                        © 2024 Toserba WS Pedak. Murah • Lengkap • Luas
-                    </p>
-                </div>
-            </footer>
+            <Footer />
         </div>
     );
 }

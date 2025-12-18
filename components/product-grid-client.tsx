@@ -5,19 +5,33 @@ import { ProductCard } from "./product-card";
 import { Package } from "lucide-react";
 import { useEffect, useState } from "react";
 
+const PRODUCT_CATEGORIES = [
+  "Semua",
+  "Sembako",
+  "Minuman",
+  "Makanan Ringan",
+  "Peralatan Rumah Tangga",
+  "Kosmetik & Perawatan",
+  "Lainnya",
+];
+
 interface ProductGridClientProps {
   products: Product[];
 }
 
 export function ProductGridClient({ products }: ProductGridClientProps) {
   const [isMounted, setIsMounted] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("Semua");
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
+  const filteredProducts = selectedCategory === "Semua"
+    ? products
+    : products.filter((p) => p.category === selectedCategory);
+
   if (!isMounted) {
-    // Return loading skeleton during hydration
     return (
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 md:gap-8">
         {[...Array(8)].map((_, i) => (
@@ -51,10 +65,42 @@ export function ProductGridClient({ products }: ProductGridClientProps) {
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 md:gap-8">
-      {products.map((product) => (
-        <ProductCard key={product.id} product={product as Product} />
-      ))}
+    <div className="space-y-6">
+      {/* Category Filter Tabs */}
+      <div className="flex flex-wrap gap-2 justify-center">
+        {PRODUCT_CATEGORIES.map((category) => (
+          <button
+            key={category}
+            onClick={() => setSelectedCategory(category)}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${selectedCategory === category
+                ? "bg-blue-600 text-white shadow-md"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+          >
+            {category}
+          </button>
+        ))}
+      </div>
+
+      {/* Products Count */}
+      <p className="text-center text-gray-600">
+        Menampilkan {filteredProducts.length} produk
+        {selectedCategory !== "Semua" && ` dalam kategori "${selectedCategory}"`}
+      </p>
+
+      {/* Product Grid */}
+      {filteredProducts.length > 0 ? (
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 md:gap-8">
+          {filteredProducts.map((product) => (
+            <ProductCard key={product.id} product={product as Product} />
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-12">
+          <Package className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+          <p className="text-gray-500">Tidak ada produk dalam kategori ini</p>
+        </div>
+      )}
     </div>
   );
 }

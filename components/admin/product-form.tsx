@@ -9,9 +9,25 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { supabase } from "@/lib/supabase/client";
 import { Product } from "@/lib/types/product";
 import { toast } from "sonner";
+
+const PRODUCT_CATEGORIES = [
+  "Sembako",
+  "Minuman",
+  "Makanan Ringan",
+  "Peralatan Rumah Tangga",
+  "Kosmetik & Perawatan",
+  "Lainnya",
+];
 
 interface ProductFormProps {
   product?: Product;
@@ -26,6 +42,7 @@ export function ProductForm({ product, isEdit = false }: ProductFormProps) {
     description: product?.description || "",
     price: product?.price?.toString() || "",
     stock: product?.stock?.toString() || "",
+    category: product?.category || "Lainnya",
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(
@@ -130,6 +147,7 @@ export function ProductForm({ product, isEdit = false }: ProductFormProps) {
         price: parseFloat(formData.price),
         stock: parseInt(formData.stock),
         image_url: imageUrl,
+        category: formData.category,
       };
 
       if (isEdit && product) {
@@ -277,6 +295,30 @@ export function ProductForm({ product, isEdit = false }: ProductFormProps) {
               }
               className="input-modern resize-none"
             />
+          </div>
+
+          {/* Category */}
+          <div className="space-y-3">
+            <Label htmlFor="category" className="text-gray-700 font-medium">
+              Kategori Produk <span className="text-red-500">*</span>
+            </Label>
+            <Select
+              value={formData.category}
+              onValueChange={(value) =>
+                setFormData({ ...formData, category: value })
+              }
+            >
+              <SelectTrigger className="input-modern">
+                <SelectValue placeholder="Pilih kategori" />
+              </SelectTrigger>
+              <SelectContent>
+                {PRODUCT_CATEGORIES.map((category) => (
+                  <SelectItem key={category} value={category}>
+                    {category}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Price and Stock */}

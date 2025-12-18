@@ -1,4 +1,5 @@
 import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
 import { ProductGrid } from "@/components/product-grid";
 
 // Force dynamic rendering to always fetch fresh data from database
@@ -149,6 +150,8 @@ export default function Home() {
           </Suspense>
         </div>
       </section>
+
+      <Footer />
     </div>
   );
 }
