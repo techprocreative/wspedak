@@ -11,10 +11,18 @@ interface ProductGridProps {
 
 export async function ProductGrid({ variant = "home" }: ProductGridProps) {
   try {
-    const productList = await db
+    let query = db
       .select()
       .from(products)
-      .orderBy(desc(products.createdAt));
+      .orderBy(desc(products.createdAt))
+      .$dynamic();
+
+    if (variant === "home") {
+      // @ts-ignore - limit is available on dynamic query but types might be strict
+      query = query.limit(8);
+    }
+
+    const productList = await query;
 
     if (variant === "home") {
       return <ProductGridHome products={productList} maxProducts={8} />;
