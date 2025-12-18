@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Edit, Trash2, ShoppingCart, Package } from "lucide-react";
+import { Edit, Trash2, ShoppingCart, Package, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -126,6 +126,9 @@ export function ProductTable() {
                   Nama Produk
                 </TableHead>
                 <TableHead className="font-semibold text-gray-900">
+                  Kategori
+                </TableHead>
+                <TableHead className="font-semibold text-gray-900">
                   Deskripsi
                 </TableHead>
                 <TableHead className="font-semibold text-gray-900">
@@ -169,6 +172,12 @@ export function ProductTable() {
                       ID: {product.id.slice(0, 8)}...
                     </div>
                   </TableCell>
+                  <TableCell>
+                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      <Tag className="h-3 w-3" />
+                      {product.category || "Lainnya"}
+                    </span>
+                  </TableCell>
                   <TableCell className="max-w-xs">
                     <div className="truncate text-gray-600">
                       {product.description || "Tidak ada deskripsi"}
@@ -182,13 +191,12 @@ export function ProductTable() {
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          product.stock === 0
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${product.stock === 0
                             ? "bg-red-100 text-red-800"
                             : product.stock < 10
                               ? "bg-orange-100 text-orange-800"
                               : "bg-green-100 text-green-800"
-                        }`}
+                          }`}
                       >
                         {product.stock === 0
                           ? "Habis"
