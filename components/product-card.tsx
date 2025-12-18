@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { ShoppingCart, Star, Truck, Shield } from "lucide-react";
+import { ShoppingCart, Truck, Shield } from "lucide-react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -116,18 +116,7 @@ export function ProductCard({ product }: ProductCardProps) {
             </p>
           )}
 
-          <div className="flex items-center gap-1 sm:gap-2">
-            <div className="flex items-center">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  className={`h-3 w-3 sm:h-4 sm:w-4 ${i < 4 ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-                    }`}
-                />
-              ))}
-            </div>
-            <span className="text-xs sm:text-sm text-gray-500">(4.0)</span>
-          </div>
+
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
             <div className="space-y-1">
