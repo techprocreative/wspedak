@@ -27,9 +27,8 @@ export default function Home() {
                   </span>
                 </h1>
                 <p className="text-xl text-blue-100 text-pretty max-w-lg">
-                  Temukan kebutuhan harian Anda dengan harga terbaik dan
-                  kualitas terjamin. Toserba WS Pedak - Partner belanja
-                  terpercaya Anda di Pedak.
+                  Belanja kebutuhan sehari-hari dengan mudah, cepat, dan hemat.
+                  Pilihan lengkap, harga bersahabat, kualitas terjamin!
                 </p>
               </div>
 
