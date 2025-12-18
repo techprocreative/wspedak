@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Edit, Trash2, ShoppingCart, Package, Tag } from "lucide-react";
+import { Edit, Trash2, ShoppingCart, Package, Tag, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -32,6 +33,17 @@ export function ProductTable() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Filter products based on search query
+  const filteredProducts = products.filter((product) => {
+    const query = searchQuery.toLowerCase();
+    return (
+      product.name.toLowerCase().includes(query) ||
+      (product.description?.toLowerCase().includes(query) ?? false) ||
+      (product.category?.toLowerCase().includes(query) ?? false)
+    );
+  });
 
   const fetchProducts = async () => {
     const { data, error } = await supabase
@@ -114,6 +126,33 @@ export function ProductTable() {
 
   return (
     <>
+      {/* Search Input */}
+      <div className="mb-4">
+        <div className="relative max-w-md">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Input
+            type="text"
+            placeholder="Cari produk berdasarkan nama, kategori, atau deskripsi..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 pr-10 input-modern"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+        {searchQuery && (
+          <p className="text-sm text-gray-500 mt-2">
+            Menampilkan {filteredProducts.length} dari {products.length} produk
+          </p>
+        )}
+      </div>
+
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <Table>
@@ -143,95 +182,110 @@ export function ProductTable() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {products.map((product) => (
-                <TableRow
-                  key={product.id}
-                  className="hover:bg-blue-50 transition-colors duration-200 border-b border-gray-100"
-                >
-                  <TableCell>
-                    <div className="relative w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-50 rounded-xl overflow-hidden">
-                      {product.image_url ? (
-                        <Image
-                          src={product.image_url}
-                          alt={product.name}
-                          fill
-                          className="object-cover hover:scale-105 transition-transform duration-200"
-                        />
-                      ) : (
-                        <div className="flex items-center justify-center h-full">
-                          <ShoppingCart className="h-8 w-8 text-blue-300" />
-                        </div>
-                      )}
-                    </div>
+              {filteredProducts.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                    {searchQuery ? (
+                      <div>
+                        <Search className="h-8 w-8 text-gray-300 mx-auto mb-2" />
+                        <p>Tidak ada produk yang cocok dengan pencarian "{searchQuery}"</p>
+                      </div>
+                    ) : (
+                      <p>Belum ada produk</p>
+                    )}
                   </TableCell>
-                  <TableCell>
-                    <div className="font-medium text-gray-900">
-                      {product.name}
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      ID: {product.id.slice(0, 8)}...
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                      <Tag className="h-3 w-3" />
-                      {product.category || "Lainnya"}
-                    </span>
-                  </TableCell>
-                  <TableCell className="max-w-xs">
-                    <div className="truncate text-gray-600">
-                      {product.description || "Tidak ada deskripsi"}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="font-bold text-blue-600">
-                      {formatPrice(product.price)}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${product.stock === 0
+                </TableRow>
+              ) : (
+                filteredProducts.map((product) => (
+                  <TableRow
+                    key={product.id}
+                    className="hover:bg-blue-50 transition-colors duration-200 border-b border-gray-100"
+                  >
+                    <TableCell>
+                      <div className="relative w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-50 rounded-xl overflow-hidden">
+                        {product.image_url ? (
+                          <Image
+                            src={product.image_url}
+                            alt={product.name}
+                            fill
+                            className="object-cover hover:scale-105 transition-transform duration-200"
+                          />
+                        ) : (
+                          <div className="flex items-center justify-center h-full">
+                            <ShoppingCart className="h-8 w-8 text-blue-300" />
+                          </div>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="font-medium text-gray-900">
+                        {product.name}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        ID: {product.id.slice(0, 8)}...
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        <Tag className="h-3 w-3" />
+                        {product.category || "Lainnya"}
+                      </span>
+                    </TableCell>
+                    <TableCell className="max-w-xs">
+                      <div className="truncate text-gray-600">
+                        {product.description || "Tidak ada deskripsi"}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="font-bold text-blue-600">
+                        {formatPrice(product.price)}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${product.stock === 0
                             ? "bg-red-100 text-red-800"
                             : product.stock < 10
                               ? "bg-orange-100 text-orange-800"
                               : "bg-green-100 text-green-800"
-                          }`}
-                      >
-                        {product.stock === 0
-                          ? "Habis"
-                          : product.stock < 10
-                            ? "Terbatas"
-                            : "Tersedia"}
-                      </span>
-                      <span className="text-sm text-gray-600">
-                        {product.stock} pcs
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <Link href={`/admin/edit/${product.id}`}>
+                            }`}
+                        >
+                          {product.stock === 0
+                            ? "Habis"
+                            : product.stock < 10
+                              ? "Terbatas"
+                              : "Tersedia"}
+                        </span>
+                        <span className="text-sm text-gray-600">
+                          {product.stock} pcs
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Link href={`/admin/edit/${product.id}`}>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="border-blue-200 hover:border-blue-400 hover:bg-blue-50 text-blue-600"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </Link>
                         <Button
                           variant="outline"
                           size="sm"
-                          className="border-blue-200 hover:border-blue-400 hover:bg-blue-50 text-blue-600"
+                          onClick={() => setDeleteId(product.id)}
+                          className="border-red-200 hover:border-red-400 hover:bg-red-50 text-red-600"
                         >
-                          <Edit className="h-4 w-4" />
+                          <Trash2 className="h-4 w-4" />
                         </Button>
-                      </Link>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setDeleteId(product.id)}
-                        className="border-red-200 hover:border-red-400 hover:bg-red-50 text-red-600"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </div>
