@@ -2,11 +2,11 @@ export default function JsonLd() {
     const structuredData = {
         "@context": "https://schema.org",
         "@type": "LocalBusiness",
-        "@id": "https://wspedak.com",
+        "@id": "https://wstoserba.my.id",
         "name": "Toserba WS Pedak",
         "alternateName": "WS Pedak",
         "description": "Toko serba ada terlengkap di Pedak untuk kebutuhan harian Anda dengan harga murah, produk lengkap, dan area luas.",
-        "url": "https://wspedak.com",
+        "url": "https://wstoserba.my.id",
         "telephone": "+6281239602221",
         "email": "nedhms@gmail.com",
         "address": {
@@ -31,7 +31,7 @@ export default function JsonLd() {
         "priceRange": "Rp",
         "currenciesAccepted": "IDR",
         "paymentAccepted": "Cash, Transfer",
-        "image": "https://wspedak.com/og-image.jpg",
+        "image": "https://wstoserba.my.id/og-image.jpg",
         "sameAs": []
     }
 

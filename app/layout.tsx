@@ -7,7 +7,7 @@ import GoogleAnalytics from "@/components/google-analytics";
 
 const inter = Inter({ subsets: ["latin"] });
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://wspedak.com";
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://wstoserba.my.id";
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),

@@ -9,7 +9,7 @@
 - **Nama Toko**: Toserba WS Pedak
 - **Tagline**: Murah • Lengkap • Luas
 - **Jenis Usaha**: Toko serba ada / Supermarket mini
-- **Website**: https://wspedak.com
+- **Website**: https://wstoserba.my.id
 
 ### Kontak
 - **WhatsApp**: +62 812-3960-2221
@@ -43,7 +43,7 @@ Toserba WS Pedak menyediakan berbagai produk kebutuhan sehari-hari:
 ## CARA BERBELANJA
 
 ### Belanja Online (Website)
-1. Kunjungi website https://wspedak.com
+1. Kunjungi website https://wstoserba.my.id
 2. Pilih produk yang diinginkan
 3. Klik tombol "Tambah ke Keranjang"
 4. Buka halaman Checkout
@@ -64,7 +64,7 @@ Toserba WS Pedak menyediakan berbagai produk kebutuhan sehari-hari:
 ### Pemesanan
 
 **Q: Bagaimana cara memesan produk?**
-A: Anda bisa memesan melalui website kami di wspedak.com. Pilih produk, masukkan ke keranjang, lalu checkout via WhatsApp. Bisa juga datang langsung ke toko.
+A: Anda bisa memesan melalui website kami di wstoserba.my.id. Pilih produk, masukkan ke keranjang, lalu checkout via WhatsApp. Bisa juga datang langsung ke toko.
 
 **Q: Apakah bisa pesan via WhatsApp langsung?**
 A: Bisa! Hubungi kami di +62 812-3960-2221. Kirim daftar produk yang ingin dibeli beserta alamat pengiriman.
@@ -143,7 +143,7 @@ A: Ya, harga di website sama dengan harga di toko fisik kami.
 
 ### Integrasi
 - Website: Next.js dengan Supabase
-- URL: https://wspedak.com
+- URL: https://wstoserba.my.id
 - API tersedia untuk integrasi produk
 
 ### Embedding Knowledge Base
