@@ -78,7 +78,7 @@ A: Minimum pembelian untuk pengiriman adalah Rp 50.000.
 A: GRATIS ongkir untuk pembelian minimal Rp 50.000 di area Pedak dan sekitarnya. Di luar area mungkin dikenakan biaya tambahan.
 
 **Q: Berapa lama pengiriman?**
-A: Pengiriman di area Pedak biasanya 1-3 jam setelah konfirmasi pembayaran. Untuk area lebih jauh, bisa 1 hari kerja.
+A: Pengiriman di area Pedak biasanya 1-3 jam setelah konfirmasi pembayaran.
 
 **Q: Apakah bisa ambil sendiri di toko?**
 A: Bisa! Pilih opsi "Ambil di Toko" saat checkout. Kami akan siapkan pesanan Anda.

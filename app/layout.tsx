@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import JsonLd from "@/components/json-ld";
 import GoogleAnalytics from "@/components/google-analytics";
+import { ChatWidget } from "@/components/chat-widget";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -103,6 +104,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <GoogleAnalytics />
         {children}
+        <ChatWidget />
         <Toaster />
       </body>
     </html>
