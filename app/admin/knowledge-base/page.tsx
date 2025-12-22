@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
 import { Save, RotateCcw, FileText, Loader2, Bot } from "lucide-react"
+import { supabase } from "@/lib/supabase/client"
 
 export default function KnowledgeBasePage() {
     const [content, setContent] = useState("")
@@ -37,9 +38,15 @@ export default function KnowledgeBasePage() {
     const handleSave = async () => {
         setIsSaving(true)
         try {
+            const { data: { session } } = await supabase.auth.getSession()
+            const token = session?.access_token
+
             const response = await fetch("/api/knowledge-base", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
                 body: JSON.stringify({ content }),
             })
 
