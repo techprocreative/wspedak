@@ -102,8 +102,8 @@ export function ProductGridHome({ products, maxProducts = 8 }: ProductGridHomePr
                 </div>
             )}
 
-            {/* View All Button */}
-            {hasMoreProducts && !showingFiltered && (
+            {/* View All Button - Always show when not filtering */}
+            {!showingFiltered && (
                 <div className="text-center pt-4">
                     <Link href="/products">
                         <Button className="btn-primary px-8 h-12">

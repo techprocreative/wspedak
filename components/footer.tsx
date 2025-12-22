@@ -26,7 +26,7 @@ export function Footer() {
                             </div>
                         </div>
                         <p className="text-gray-400 text-sm">
-                            Toko kelontong terlengkap untuk kebutuhan sehari-hari Anda dengan harga terjangkau.
+                            Belanja praktis dan hemat untuk semua kebutuhan Anda, kapan saja.
                         </p>
                     </div>
 
