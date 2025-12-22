@@ -111,9 +111,6 @@ export function ProductGridHome({ products, maxProducts = 8 }: ProductGridHomePr
                             <ArrowRight className="h-5 w-5 ml-2" />
                         </Button>
                     </Link>
-                    <p className="text-sm text-gray-500 mt-2">
-                        {products.length} produk tersedia
-                    </p>
                 </div>
             )}
         </div>
