@@ -111,8 +111,8 @@ export function ChatWidget() {
                             <Bot className="h-5 w-5" />
                         </div>
                         <div>
-                            <h3 className="font-semibold">CS WS Pedak</h3>
-                            <p className="text-xs text-blue-100">Biasanya membalas cepat</p>
+                            <h3 className="font-semibold">Mbak WS</h3>
+                            <p className="text-xs text-blue-100">CS Virtual WS Pedak</p>
                         </div>
                     </div>
                     <button
@@ -132,9 +132,9 @@ export function ChatWidget() {
                                 <Bot className="h-8 w-8 text-blue-600" />
                             </div>
                             <p className="text-gray-600 text-sm">
-                                Halo! 👋 Selamat datang di Toserba WS Pedak.
+                                Halo Kak! 👋 Dengan Mbak WS dari Toserba WS Pedak.
                                 <br />
-                                Ada yang bisa saya bantu?
+                                Ada yang bisa Mbak bantu?
                             </p>
                         </div>
                     )}
