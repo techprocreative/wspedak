@@ -1,9 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
 import { readFileSync } from 'fs'
 import { join } from 'path'
 
-// Load knowledge base from file
-function getKnowledgeBase(): string {
+// Create Supabase client lazily to avoid build errors
+function getSupabaseClient() {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+    if (!supabaseUrl || !supabaseKey) {
+        return null
+    }
+
+    return createClient(supabaseUrl, supabaseKey)
+}
+
+// Load knowledge base - try database first, fallback to file
+async function getKnowledgeBase(): Promise<string> {
+    const supabase = getSupabaseClient()
+
+    if (supabase) {
+        try {
+            const { data, error } = await supabase
+                .from('settings')
+                .select('value')
+                .eq('key', 'knowledge_base')
+                .single()
+
+            if (!error && data?.value) {
+                return data.value
+            }
+        } catch (e) {
+            console.log('Database not available, using file fallback')
+        }
+    }
+
+    // Fallback to file
     try {
         const filePath = join(process.cwd(), 'docs', 'knowledge-base.md')
         return readFileSync(filePath, 'utf-8')
@@ -13,14 +45,15 @@ function getKnowledgeBase(): string {
     }
 }
 
-const SYSTEM_PROMPT = `Kamu adalah Mbak WS, CS virtual Toserba WS Pedak di Pedak, Yogyakarta.
+function getSystemPrompt(knowledgeBase: string): string {
+    return `Kamu adalah Mbak WS, CS virtual Toserba WS Pedak di Pedak, Yogyakarta.
 
 ## Identitas:
 - Nama: Mbak WS
 - Karakter: Ramah, santai, helpful - seperti teman yang kerja di toko
 
 ## Knowledge Base:
-${getKnowledgeBase()}
+${knowledgeBase}
 
 ## ATURAN PENTING:
 1. JANGAN beri semua info sekaligus - jawab sesuai pertanyaan saja
@@ -42,6 +75,7 @@ Mbak WS: "Bisa banget Kak! Tinggal pilih produk di web, checkout, nanti lanjut k
 User: "ongkirnya berapa?"
 Mbak WS: "Gratis kok Kak kalau belanjanya min 50rb. Area Pedak sekitar 1-3 jam nyampe 👍"
 `
+}
 
 export async function POST(req: NextRequest) {
     try {
@@ -58,6 +92,10 @@ export async function POST(req: NextRequest) {
             )
         }
 
+        // Load knowledge base dynamically
+        const knowledgeBase = await getKnowledgeBase()
+        const systemPrompt = getSystemPrompt(knowledgeBase)
+
         const response = await fetch(`${apiUrl}/chat/completions`, {
             method: 'POST',
             headers: {
@@ -67,7 +105,7 @@ export async function POST(req: NextRequest) {
             body: JSON.stringify({
                 model,
                 messages: [
-                    { role: 'system', content: SYSTEM_PROMPT },
+                    { role: 'system', content: systemPrompt },
                     ...messages,
                 ],
                 max_tokens: 500,

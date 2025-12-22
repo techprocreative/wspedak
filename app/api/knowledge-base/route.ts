@@ -1,19 +1,54 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { readFileSync, writeFileSync } from 'fs'
+import { createClient } from '@supabase/supabase-js'
+import { readFileSync } from 'fs'
 import { join } from 'path'
 
-const KB_FILE_PATH = join(process.cwd(), 'docs', 'knowledge-base.md')
+// Create Supabase client lazily to avoid build errors
+function getSupabaseClient() {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+        return null
+    }
+
+    return createClient(supabaseUrl, supabaseServiceKey)
+}
+
+// Fallback to file if database is not available
+function getFileKnowledgeBase(): string {
+    try {
+        const filePath = join(process.cwd(), 'docs', 'knowledge-base.md')
+        return readFileSync(filePath, 'utf-8')
+    } catch (error) {
+        return ''
+    }
+}
 
 export async function GET() {
     try {
-        const content = readFileSync(KB_FILE_PATH, 'utf-8')
-        return NextResponse.json({ content })
+        const supabase = getSupabaseClient()
+
+        if (supabase) {
+            // Try to get from database first
+            const { data, error } = await supabase
+                .from('settings')
+                .select('value')
+                .eq('key', 'knowledge_base')
+                .single()
+
+            if (!error && data) {
+                return NextResponse.json({ content: data.value, source: 'database' })
+            }
+        }
+
+        // Fallback to file
+        const content = getFileKnowledgeBase()
+        return NextResponse.json({ content, source: 'file' })
     } catch (error) {
         console.error('Failed to read knowledge base:', error)
-        return NextResponse.json(
-            { error: 'Failed to read knowledge base' },
-            { status: 500 }
-        )
+        const content = getFileKnowledgeBase()
+        return NextResponse.json({ content, source: 'file' })
     }
 }
 
@@ -28,7 +63,34 @@ export async function POST(req: NextRequest) {
             )
         }
 
-        writeFileSync(KB_FILE_PATH, content, 'utf-8')
+        const supabase = getSupabaseClient()
+
+        if (!supabase) {
+            return NextResponse.json(
+                { error: 'Database not configured' },
+                { status: 500 }
+            )
+        }
+
+        // Upsert to database
+        const { error } = await supabase
+            .from('settings')
+            .upsert(
+                {
+                    key: 'knowledge_base',
+                    value: content,
+                    updated_at: new Date().toISOString()
+                },
+                { onConflict: 'key' }
+            )
+
+        if (error) {
+            console.error('Database error:', error)
+            return NextResponse.json(
+                { error: 'Failed to save to database: ' + error.message },
+                { status: 500 }
+            )
+        }
 
         return NextResponse.json({ success: true, message: 'Knowledge base updated successfully' })
     } catch (error) {
