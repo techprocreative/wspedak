@@ -17,7 +17,7 @@ export default function GoogleAnalytics() {
 
           gtag('config', '${GA_MEASUREMENT_ID}', {
             page_path: window.location.pathname,
-            cookie_domain: 'auto',
+            cookie_domain: 'none',
           });
         
         `}
