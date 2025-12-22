@@ -4,6 +4,7 @@ import { Product } from "@/lib/db/schema";
 import { ProductCard } from "./product-card";
 import { Package, Search, X, ChevronDown, SlidersHorizontal } from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,10 @@ interface ProductGridClientProps {
 const ITEMS_PER_PAGE = 12;
 
 export function ProductGridClient({ products }: ProductGridClientProps) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
   const [isMounted, setIsMounted] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("Semua");
   const [categories, setCategories] = useState<string[]>(["Semua"]);
@@ -50,6 +55,27 @@ export function ProductGridClient({ products }: ProductGridClientProps) {
     }
     fetchCategories();
   }, [products]);
+
+  // Sync category from URL
+  useEffect(() => {
+    const categoryFromUrl = searchParams.get("category");
+    if (categoryFromUrl) {
+      setSelectedCategory(categoryFromUrl);
+    } else {
+      setSelectedCategory("Semua");
+    }
+  }, [searchParams]);
+
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategory(category);
+    const params = new URLSearchParams(searchParams);
+    if (category === "Semua") {
+      params.delete("category");
+    } else {
+      params.set("category", category);
+    }
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
 
   // Reset visible count when filter changes
   useEffect(() => {
@@ -175,10 +201,10 @@ export function ProductGridClient({ products }: ProductGridClientProps) {
         {categories.map((category: string) => (
           <button
             key={category}
-            onClick={() => setSelectedCategory(category)}
+            onClick={() => handleCategoryChange(category)}
             className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${selectedCategory === category
-                ? "bg-blue-600 text-white shadow-md"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              ? "bg-blue-600 text-white shadow-md"
+              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
           >
             {category}
@@ -223,7 +249,7 @@ export function ProductGridClient({ products }: ProductGridClientProps) {
           <button
             onClick={() => {
               setSearchQuery("");
-              setSelectedCategory("Semua");
+              handleCategoryChange("Semua");
             }}
             className="mt-2 text-blue-600 hover:underline"
           >
