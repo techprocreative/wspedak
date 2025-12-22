@@ -11,6 +11,7 @@ import {
   Package,
   Settings,
   Users,
+  Bot,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase/client";
@@ -122,6 +123,15 @@ export default function AdminLayout({
                   >
                     <Users className="h-4 w-4 mr-2" />
                     Tambah Admin
+                  </Button>
+                </Link>
+                <Link href="/admin/knowledge-base">
+                  <Button
+                    variant="ghost"
+                    className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 font-medium"
+                  >
+                    <Bot className="h-4 w-4 mr-2" />
+                    CS Bot
                   </Button>
                 </Link>
                 <Button
