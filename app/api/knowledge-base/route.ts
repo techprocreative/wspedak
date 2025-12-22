@@ -4,15 +4,19 @@ import { readFileSync } from 'fs'
 import { join } from 'path'
 
 // Create Supabase client lazily to avoid build errors
-function getSupabaseClient() {
+function getSupabaseClient(authToken: string | null = null) {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-    if (!supabaseUrl || !supabaseServiceKey) {
+    if (!supabaseUrl || !supabaseKey) {
         return null
     }
 
-    return createClient(supabaseUrl, supabaseServiceKey)
+    const options = authToken
+        ? { global: { headers: { Authorization: authToken } } }
+        : {}
+
+    return createClient(supabaseUrl, supabaseKey, options)
 }
 
 // Fallback to file if database is not available
@@ -63,7 +67,8 @@ export async function POST(req: NextRequest) {
             )
         }
 
-        const supabase = getSupabaseClient()
+        const authHeader = req.headers.get('Authorization')
+        const supabase = getSupabaseClient(authHeader)
 
         if (!supabase) {
             return NextResponse.json(
