@@ -50,7 +50,7 @@ export default function Home() {
             <FeatureCard
               icon={<Clock className="h-6 w-6" />}
               title="Pengiriman Cepat"
-              description="Area Pedak"
+              description="Cepat & Tepat"
             />
             <FeatureCard
               icon={<Star className="h-6 w-6" />}
