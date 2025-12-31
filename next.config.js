@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
+    unoptimized: true, // Matikan optimisasi Vercel
     remotePatterns: [
       {
         protocol: 'https',
